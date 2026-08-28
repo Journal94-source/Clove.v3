@@ -1,0 +1,9 @@
+node_modules/
+downloads/
+library.json
+Clove.icns
+*.app
+.DS_Store
+dist/
+logo_square.png
+index copy.html

@@ -1,0 +1,33 @@
+{
+  "name": "clove-v3",
+  "version": "1.0.0",
+  "description": "Clove.v3 music player",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron --no-sandbox .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^36.9.5",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "music-metadata": "^11.15.0"
+  },
+  "build": {
+    "appId": "com.yourname.clovev3",
+    "productName": "Clove.v3",
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "library.json",
+      "Clove.icns"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "Clove.icns",
+      "category": "public.app-category.music"
+    }
+  }
+}
