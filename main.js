@@ -65,7 +65,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: false // <-- THIS LINE FIXES THE AUDIO
     }
   });
   win.loadFile('index.html');

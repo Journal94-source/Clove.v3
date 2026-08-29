@@ -430,6 +430,8 @@ audio.addEventListener('timeupdate', () => {
   const miniProg = _el('mini-progress'); if (miniProg) miniProg.style.width = pct + '%';
   const progressBar = _el('np-progress'); const currentTime = _el('np-current'); const totalTime = _el('np-total');
   if (progressBar) progressBar.value = pct;
+  // Force refresh "Next song" inside expanded player so it never gets stuck
+  if (_el('now-playing').style.display === 'block') { updateNextUp(); }
   if (currentTime) currentTime.textContent = fmtTime(audio.currentTime);
   if (totalTime) totalTime.textContent = fmtTime(audio.duration || 0);
   const mLeft = _el('mini-time-left'); const mRight = _el('mini-time-right');
@@ -456,7 +458,8 @@ function playTrack(track) {
   if (currentPlaylistName && !(library.playlists[currentPlaylistName].tracks || []).includes(track.path)) { closePlaylistPanel(); }
   countTracked = false;
   let src = track.path; if (src.startsWith('file://')) src = src.slice(7); try { src = decodeURIComponent(src); } catch(e) {}
-  currentTrack = track; audio.src = 'file://' + src; audio.play().catch(() => {}); isPlaying = true;
+  currentTrack = track; let finalSrc = src.startsWith('file://') ? src : 'file://' + src;
+audio.src = finalSrc; audio.play().catch(() => {}); isPlaying = true;
   updateMiniPlayer();
   const npTitle = _el('np-title'); if (npTitle) npTitle.textContent = esc(track.title || 'Unknown');
   const npArtist = _el('np-artist'); if (npArtist) npArtist.textContent = esc(track.artist || 'Unknown');
@@ -526,14 +529,19 @@ function hideNowPlaying() { _el('now-playing').style.display = 'none'; _el('albu
 function toggleNowPlaying() { if (!currentTrack) return; const np = _np('now-playing'); if (np && np.style.display === 'none') { showNowPlaying(currentTrack); } else { hideNowPlaying(); } }
 
 function updateNextUp() {
-  if (!currentTrack) return;
+  if (!currentTrack) { 
+    _el('next-up').textContent = 'Next song: None'; 
+    return; 
+  }
   let nextTrackObj = null;
   if (currentPlaylistName) {
     const pl = library.playlists[currentPlaylistName];
-    const tracks = pl.tracks.map(p => getTrack(p)).filter(Boolean);
-    const sorted = getSortedTracks(tracks);
-    const idx = sorted.findIndex(t => t.path === currentTrack.path);
-    if (idx !== -1) nextTrackObj = sorted[(idx + 1) % sorted.length];
+    if (pl && pl.tracks) {
+      const tracks = pl.tracks.map(p => getTrack(p)).filter(Boolean);
+      const sorted = getSortedTracks(tracks);
+      const idx = sorted.findIndex(t => t.path === currentTrack.path);
+      if (idx !== -1) nextTrackObj = sorted[(idx + 1) % sorted.length];
+    }
   } else if (library.tracks.length) {
     const sorted = getSortedTracks([...library.tracks]);
     const idx = sorted.findIndex(t => t.path === currentTrack.path);
